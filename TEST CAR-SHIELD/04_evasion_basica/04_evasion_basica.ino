@@ -1,0 +1,120 @@
+#include <ACB_SmartCar_V2.h>
+#include <ESP32Servo.h>
+
+ACB_SmartCar_V2 ACB_SmartCar;
+Servo servoScan;
+
+#define SERVO_PIN 25
+#define TRIG_PIN  13
+#define ECHO_PIN  14
+#define BUZZER    33
+
+#define SERVO_LEFT    0
+#define SERVO_CENTER  85
+#define SERVO_RIGHT   180
+
+#define SPEED_MOVE    130
+#define SPEED_TURN    140
+#define DIST_LIMIT    20
+
+float medirDistanciaCM() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(3);
+
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duracion = pulseIn(ECHO_PIN, HIGH, 30000);
+
+  if (duracion == 0) {
+    return 999;
+  }
+
+  return duracion * 0.0343 / 2.0;
+}
+
+float mirarDistancia(int angulo) {
+  servoScan.write(angulo);
+  delay(500);
+
+  float distancia = medirDistanciaCM();
+
+  Serial.print("Angulo ");
+  Serial.print(angulo);
+  Serial.print(" -> ");
+  Serial.print(distancia);
+  Serial.println(" cm");
+
+  return distancia;
+}
+
+void beepCorto() {
+  tone(BUZZER, 1200, 120);
+  delay(150);
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  ACB_SmartCar.Init();
+
+  servoScan.setPeriodHertz(50);
+  servoScan.attach(SERVO_PIN, 500, 2400);
+  servoScan.write(SERVO_CENTER);
+
+  Serial.println("ACEBOTT QD001 - evasion basica");
+  beepCorto();
+}
+
+void loop() {
+  servoScan.write(SERVO_CENTER);
+  delay(100);
+
+  float frente = medirDistanciaCM();
+
+  Serial.print("Frente: ");
+  Serial.print(frente);
+  Serial.println(" cm");
+
+  if (frente > DIST_LIMIT) {
+    ACB_SmartCar.Move(Forward, SPEED_MOVE);
+  } else {
+    ACB_SmartCar.Move(Stop, 0);
+    beepCorto();
+
+    Serial.println("Obstaculo detectado. Escaneando...");
+
+    float izquierda = mirarDistancia(SERVO_LEFT);
+    float derecha = mirarDistancia(SERVO_RIGHT);
+
+    servoScan.write(SERVO_CENTER);
+    delay(300);
+
+    Serial.print("Izquierda: ");
+    Serial.print(izquierda);
+    Serial.print(" cm | Derecha: ");
+    Serial.print(derecha);
+    Serial.println(" cm");
+
+    if (izquierda > derecha) {
+      Serial.println("Girando a la izquierda");
+      ACB_SmartCar.Move(Contrarotate, SPEED_TURN);
+      delay(600);
+    } else {
+      Serial.println("Girando a la derecha");
+      ACB_SmartCar.Move(Clockwise, SPEED_TURN);
+      delay(600);
+    }
+
+    ACB_SmartCar.Move(Stop, 0);
+    delay(300);
+  }
+
+  delay(80);
+}

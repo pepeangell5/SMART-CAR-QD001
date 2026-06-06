@@ -1,0 +1,36 @@
+#include <ACB_SmartCar_V2.h>
+
+ACB_SmartCar_V2 ACB_SmartCar;
+
+#define LED_LEFT   12
+#define LED_RIGHT  2
+#define BUZZER     33
+
+void setup() {
+  Serial.begin(115200);
+  delay(1000);
+
+  ACB_SmartCar.Init();
+
+  pinMode(LED_LEFT, OUTPUT);
+  pinMode(LED_RIGHT, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+
+  digitalWrite(LED_LEFT, LOW);
+  digitalWrite(LED_RIGHT, LOW);
+
+  Serial.println("ACEBOTT QD001 - prueba de LEDs");
+  tone(BUZZER, 1000, 200);
+}
+
+void loop() {
+  digitalWrite(LED_LEFT, HIGH);
+  digitalWrite(LED_RIGHT, HIGH);
+  Serial.println("LEDs ON");
+  delay(500);
+
+  digitalWrite(LED_LEFT, LOW);
+  digitalWrite(LED_RIGHT, LOW);
+  Serial.println("LEDs OFF");
+  delay(500);
+}
