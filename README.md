@@ -758,6 +758,26 @@ Similar al anterior pero cambia de modo automáticamente cada 5 segundos. Útil 
 
 ---
 
+### `CAR-SHIELD-QD003_APP_CONTROL/` — App + carro + QD003
+
+Modo para manejar el carro desde la app ACEBOTT y controlar la expansión QD003.
+
+- WiFi: `ESP32_QD003`
+- Password: `12345678`
+- Puerto app: `100`
+- Movimiento del carro con pulso de arranque.
+- Servo de cámara en `GPIO25`.
+- Cámara QD003 por puerto físico `UART` del shield:
+  - `RX=GPIO3`
+  - `TX=GPIO1`
+- Soporta comandos de modos QD003: QR, barcode, color, face, image, visual patrol, traffic y machine learning.
+
+> ⚠️ **Importante:** Como usa el puerto UART físico del shield, sube el sketch con la QD003 desconectada. Después de subir, conecta la cámara y reinicia el ESP32.
+
+> Nota: QD003 es módulo de visión IA/K210. No es la expansión ESP32-CAM de video MJPEG en vivo; para video en vivo desde la app normalmente se usa QD002. QD003 manda resultados de visión por UART y muestra la imagen en su propia pantalla.
+
+---
+
 ## 🔬 Tests individuales de componentes
 
 La carpeta `TEST CAR-SHIELD/` contiene sketches simples para verificar cada componente por separado. **Úsalos para diagnosticar problemas** antes de usar los sketches principales.
